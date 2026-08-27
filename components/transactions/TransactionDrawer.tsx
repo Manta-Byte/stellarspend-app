@@ -62,46 +62,42 @@ export default function TransactionDrawer({
 
   // Focus management
   useEffect(() => {
-    if (isOpen && drawerRef.current) {
-      // Focus the close button when drawer opens
-      closeButtonRef.current?.focus();
+    if (!isOpen || !drawerRef.current) return;
 
-      // Trap focus within drawer
-      const handleTabKey = (e: KeyboardEvent) => {
-        if (e.key !== "Tab") return;
+    closeButtonRef.current?.focus();
 
-        const focusableElements = drawerRef.current?.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-        ) as NodeListOf<HTMLElement>;
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !isOpen) return;
 
-        if (focusableElements.length === 0) return;
+      const focusableElements = drawerRef.current?.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      ) as NodeListOf<HTMLElement>;
 
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
+      if (focusableElements.length === 0) return;
 
-        if (e.shiftKey) {
-          if (document.activeElement === firstElement) {
-            e.preventDefault();
-            lastElement.focus();
-          }
-        } else {
-          if (document.activeElement === lastElement) {
-            e.preventDefault();
-            firstElement.focus();
-          }
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
         }
-      };
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
 
-      document.addEventListener("keydown", handleTabKey);
+    document.addEventListener("keydown", handleTabKey);
+    document.body.style.overflow = "hidden";
 
-      // Prevent body scroll when drawer is open
-      document.body.style.overflow = "hidden";
-
-      return () => {
-        document.removeEventListener("keydown", handleTabKey);
-        document.body.style.overflow = "";
-      };
-    }
+    return () => {
+      document.removeEventListener("keydown", handleTabKey);
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   // Close on escape key
